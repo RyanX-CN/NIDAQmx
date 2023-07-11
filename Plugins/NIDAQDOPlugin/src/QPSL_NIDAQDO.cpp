@@ -14,14 +14,12 @@ extern "C" {
     if (DAQmxFailed(task->error_code = (functionCall))) \
         return deal_err_task(task);
 struct DAQmxDigitalOutputChannel {
-    char physical_channel_name[256];
-    float64 min_val;
-    float64 max_val;
+    char physical_line_name[256];
 };
 struct DAQmxDigitalOutputTask {
     TaskHandle handle;
     DAQmxDigitalOutputChannel *channels;
-    uInt32 channel_number;
+    uInt32 line_number;
     char trigger_source[1024];
     float64 sample_rate;
     int32 sample_mode;
@@ -61,7 +59,7 @@ int32 DLL_EXPORT QPSL_DAQmxGetDeviceList(char *name_list, uInt32 len, char *erro
     DAQmxErrChk(DAQmxGetSystemInfoAttribute(DAQmx_Sys_DevNames, name_list, len));
     return 0;
 }
-int32 DLL_EXPORT QPSL_DAQmxGetDOChannelList(const char *device_name, char *name_list, uInt32 len, char *error_buffer, uInt32 len2) {
+int32 DLL_EXPORT QPSL_DAQmxGetDOLineList(const char *device_name, char *name_list, uInt32 len, char *error_buffer, uInt32 len2) {
     int error_code;
     DAQmxErrChk(DAQmxGetDevDOLines(device_name, name_list, len));
     return 0;
@@ -73,8 +71,11 @@ int32 DLL_EXPORT QPSL_DAQmxGetDevTerminals(const char *device_name, char *termin
 }
 int32 DLL_EXPORT QPSL_DAQmxDO_init(DAQmxDigitalOutputTask *task) {
     DAQmxErrChk_task(DAQmxCreateTask("", &task->handle));
-    for (uInt32 i = 0; i < task->channel_number; i++) {
-        DAQmxErrChk_task(DAQmxCreateDOChan(task->handle, task->channels[i].physical_channel_name, "", DAQmx_Val_ChanForAllLines));
+    for (uInt32 i = 0; i < task->line_number; i++) {
+        //DAQmx_Val_ChanPerLine: one line for one channel
+        DAQmxErrChk_task(DAQmxCreateDOChan(task->handle, task->channels[i].physical_line_name, "", DAQmx_Val_ChanPerLine)); 
+        //DAQmx_Val_ChanForAllLines: all lines for one channel
+        //DAQmxErrChk_task(DAQmxCreateDOChan(task->handle, task->channels[i].physical_line_name, "", DAQmx_Val_ChanForAllLines)); 
     }
     DAQmxErrChk_task(DAQmxCfgSampClkTiming(task->handle, task->trigger_source, task->sample_rate, DAQmx_Val_Rising, task->sample_mode, task->sample_per_channel));
     return 0;
@@ -92,12 +93,17 @@ int32 DLL_EXPORT QPSL_DAQmxDO_clear(DAQmxDigitalOutputTask *task) {
     task->handle = 0;
     return 0;
 }
-int32 DLL_EXPORT QPSL_DAQmxWriteDigitalU32(DAQmxDigitalOutputTask *task, int32 numSampsPerChan, bool32 autoStart, float64 timeout, bool32 dataLayout, uInt32 writeArray[], int32 *sampsPerChanWritten, bool32 *reserved){
-    DAQmxErrChk_task(DAQmxWriteDigitalU32(task->handle,));
+//Write value to NI a digital output channel
+int32 DLL_EXPORT QPSL_DAQmxWriteDigitaLines(DAQmxDigitalOutputTask *task,  int32 *num_of_written, uInt8 *buffer) {
+    DAQmxErrChk_task(DAQmxWriteDigitalLines(task->handle, task->sample_per_channel, 0, 10.0, DAQmx_Val_GroupByChannel, buffer, num_of_written, NULL));
     return 0;
 }
-int32 DLL_EXPORT QPSL_DAQmxWriteDigitslU8(DAQmxDigitalOutputTask *task, int32 *num_of_writen, float64 *buffer) {
-    DAQmxErrChk_task(DAQmxWriteDigitalU8(task->handle, task->sample_per_channel, 0, 10.0, DAQmx_Val_GroupByChannel, buffer, num_of_writen, nullptr));
+//Write value to NI a digital output port (port0:32bit, port1/2:8bit)
+int32 DLL_EXPORT QPSL_DAQmxWriteDigitalU32(DAQmxDigitalOutputTask *task, int32 *num_of_written, uInt32 *buffer){
+    DAQmxErrChk_task(DAQmxWriteDigitalU32(task->handle, task->sample_per_channel, 0, 10.0, DAQmx_Val_GroupByChannel, buffer, num_of_written, NULL));
+}
+int32 DLL_EXPORT QPSL_DAQmxWriteDigitslU8(DAQmxDigitalOutputTask *task, int32 *num_of_written, uInt8 *buffer) {
+    DAQmxErrChk_task(DAQmxWriteDigitalU8(task->handle, task->sample_per_channel, 0, 10.0, DAQmx_Val_GroupByChannel, buffer, num_of_written, NULL));
     return 0;
 }
 int32 DLL_EXPORT QPSL_DAQmxAO_register_everyn_callback(DAQmxDigitalOutputTask *task, uInt32 n_samples, DAQmxEveryNSamplesEventCallbackPtr callback, void *callback_data) {
