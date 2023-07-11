@@ -1,0 +1,34 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "run pyQPSL3.7",
+            "command": "D:/software/python3.7.5/virtual/virtual-wMIujEtB/Scripts/python.exe",
+            "args": [
+                "Main.py"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "run pyQPSL3.9",
+            "command": "D:/software/python3.9.5/virtual/virtual-npOpfz_Q/Scripts/python.exe",
+            "args": [
+                "Main.py"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "export pyQPSL3.7",
+            "command": "D:/software/python3.7.5/virtual/virtual-wMIujEtB/Scripts/python.exe",
+            "args": [
+                "tool_export.py"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+    ]
+}
