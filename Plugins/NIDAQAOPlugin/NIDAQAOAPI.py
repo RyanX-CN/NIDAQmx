@@ -85,6 +85,21 @@ class DAQmxAnalogOutputTask(Structure):
             raise BaseException(
                 bytes.decode(self.error_buffer, encoding='utf8'))
         return self.error_code
+    
+    def reset(self) -> int:
+        num_of_written =c_int32(100)
+        buffer = c_double(0)
+        _QPSL_DAQmxAO_init(pointer(self))
+        _QPSL_DAQmxWriteAnalogF64(byref(self), byref(num_of_written), buffer)
+        _QPSL_DAQmxAO_start(pointer(self))
+        sleep_for(10)
+        _QPSL_DAQmxAO_stop(pointer(self))
+        _QPSL_DAQmxAO_clear(pointer(self))
+        if self.error_code:
+            raise BaseException(
+                bytes.decode(self.error_buffer, encoding='utf8'))
+        return self.error_code
+
 
     def has_handle(self) -> bool:
         return self.handle

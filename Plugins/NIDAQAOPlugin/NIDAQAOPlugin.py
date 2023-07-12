@@ -90,6 +90,10 @@ class NIDAQAOPluginWorker(QPSLWorker):
         self.m_task.stop_task()
         self.sig_task_stopped.emit()
 
+    @QPSLObjectBase.log_decorator()
+    def reset(self):
+        self.m_task.reset()
+
     @ctypes.WINFUNCTYPE(c_int32, c_void_p, c_int32, c_uint32, c_void_p)
     def everyn_callback(handle: c_void_p, event_type: c_int32,
                         n_sample: c_uint32, callback_data: c_void_p):
@@ -204,7 +208,11 @@ class NIDAQAOPluginUI(QPSLTabWidget):
                                         object_name="btn_show",
                                         closed_text="start show",
                                         opened_text="stop show"))
-            self.box_control.set_stretch(sizes=(1, 1, 1, 1))
+            self.box_control.add_widget(
+                widget=QPSLPushButton(self.box_control,
+                                      object_name="btn_reset",
+                                      text="reset"))
+            self.box_control.set_stretch(sizes=(1, 1, 1, 1, 1))
             self.tab_control.set_stretch(sizes=(3, 1))
 
         setup_config_page()
@@ -282,6 +290,7 @@ class NIDAQAOPluginUI(QPSLTabWidget):
         connect_direct(self.graph.sig_work_started, self.btn_show.set_opened)
         connect_direct(self.btn_show.sig_close, self.graph.stop_work)
         connect_direct(self.graph.sig_work_stopped, self.btn_show.set_closed)
+        connect_direct(self.btn_reset.sig_clicked,self.m_worker.reset)
 
         # state
         connect_direct(self.btn_task.sig_state_changed,
@@ -344,7 +353,6 @@ class NIDAQAOPluginUI(QPSLTabWidget):
         assert channel.cbox_channel.current_text()
         self.spin_everyn.setValue(50)
         self.graph.start_work()
-        # self.on_btn_init_task_clicked()
         while not self.btn_task.isEnabled():
             sleep_for(20)
 
@@ -493,6 +501,10 @@ class NIDAQAOPluginUI(QPSLTabWidget):
     @property
     def btn_show(self) -> QPSLToggleButton:
         return self.box_control.get_widget(3)
+    
+    @property
+    def btn_reset(self) -> QPSLPushButton:
+        return self.box_control.get_widget(4)
 
     @property
     def toggle_buttons(self) -> Iterable[QPSLToggleButton]:
