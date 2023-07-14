@@ -23,7 +23,7 @@ import typing
 import warnings
 import weakref
 from collections import defaultdict, deque, namedtuple
-from ctypes import byref, c_bool, c_char, c_char_p, c_double, c_int, c_int32, c_uint, c_uint32, c_void_p, pointer, py_object, sizeof, POINTER, Structure
+from ctypes import byref, c_bool, c_char, c_char_p, c_double, c_int, c_int32, c_uint, c_uint8, c_uint32, c_void_p, pointer, py_object, sizeof, POINTER, Structure
 from typing import Any, Callable, Dict, Generic, Generator, Iterable, Iterator, List, Mapping, NoReturn, Optional, Set, Tuple, TypeVar, Union
 from QPSLClass.QPSLLogger import QPSL_LOG_LEVEL, ColoredConsoleHandler, QPSLLogger, loading_info, loading_warning, loading_error, set_console_log_level
 from QPSLClass.QPSLConfiger import configer_get, configer_set, configer_getset, configer_write

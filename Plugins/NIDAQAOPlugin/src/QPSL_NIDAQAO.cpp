@@ -108,6 +108,11 @@ int32 DLL_EXPORT QPSL_DAQmxGetBufOutputBufSize(DAQmxAnalogOutputTask *task, uInt
     DAQmxErrChk_task(DAQmxGetBufOutputBufSize(task->handle, data));
     return 0;
 }
+// int32 DLL_EXPORT QPSL_DAQmxResetDevice(const char *device_name, char *error_buffer, uInt32 len2) {
+//     int32 error_code;
+//     DAQmxErrChk(DAQmxResetDevice(device_name));
+//     return 0;
+// }
 #ifdef __cplusplus
 }
 #endif

@@ -36,6 +36,14 @@ class DAQmxDigitalOutputTask(Structure):
             raise BaseException(
                 bytes.decode(self.error_buffer, encoding='utf8'))
         return self.error_code
+    
+    def write_data(self,arr2d:np.ndarray) ->Tuple[int,c_int32]:
+        assert arr2d.shape[0] == self.line_number
+        assert arr2d.shape[1] == self.sample_per_channel
+        num_of_written = c_int32()
+        arr = arr2d.reshape(arr2d.shape[0] *arr2d.shape[1])
+        buffer = (c_double *len(arr))(*arr) 
+        _QPSL_DAQmxWriteDigitalLines()
 
 c_DAQmxDigitalOutputTask_p = POINTER(DAQmxDigitalOutputTask)
 
@@ -73,3 +81,12 @@ try:
 except:
     loading_error("failed to load function {0}".format(
         "QPSL_DAQmxDO_register_done_callback"))
+try:
+    _QPSL_DAQmxWriteDigitalLines = getattr(_library,"QPSL_DAQmxWriteDigitalLines")
+    _QPSL_DAQmxWriteDigitalLines.argtypes = [
+        c_DAQmxDigitalOutputTask_p, c_int32_p, c_uint8
+    ]
+    _QPSL_DAQmxWriteDigitalLines.restype = c_int32
+except:
+    loading_error(
+        "failed to load function {0}".format("QPSL_DAQmxWriteDigitalLines"))

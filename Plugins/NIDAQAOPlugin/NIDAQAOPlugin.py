@@ -90,8 +90,14 @@ class NIDAQAOPluginWorker(QPSLWorker):
         self.m_task.stop_task()
         self.sig_task_stopped.emit()
 
+    # @QPSLObjectBase.log_decorator()
+    # def reset(self):
+    #     self.m_task.reset()
+
     @QPSLObjectBase.log_decorator()
     def reset(self):
+        self.stop_task()
+        self.clear_task()
         self.m_task.reset()
 
     @ctypes.WINFUNCTYPE(c_int32, c_void_p, c_int32, c_uint32, c_void_p)
@@ -235,6 +241,7 @@ class NIDAQAOPluginUI(QPSLTabWidget):
             spin.setFont(QFont(self.m_font_family, 10))
         for cbox in self.cboxes:
             cbox.setFont(QFont(self.m_font_family, 10))
+        self.btn_reset.set_font(font=QFont(self.m_font_family, 10))
 
     @QPSLObjectBase.log_decorator()
     def setupLogic(self):

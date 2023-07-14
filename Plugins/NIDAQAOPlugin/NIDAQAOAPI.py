@@ -100,7 +100,6 @@ class DAQmxAnalogOutputTask(Structure):
                 bytes.decode(self.error_buffer, encoding='utf8'))
         return self.error_code
 
-
     def has_handle(self) -> bool:
         return self.handle
 
@@ -284,3 +283,7 @@ def DAQmxGetTerminalList(device_name: str,
             bytes.decode(terminal_buffer.value,
                          encoding='utf8').split(','))), bytes.decode(
                              error_buffer.value, encoding='utf8')
+
+# def DAQmxResetDevice(device_name: str) -> int:
+#     device_name = ctypes.create_string_buffer(init=device_name.encode('utf8'))
+#     return _QPSL_DAQmxResetDevice(device_name)
